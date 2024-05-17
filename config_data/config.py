@@ -7,10 +7,14 @@ class TgBot:
     token: str
     admin_id: str
 
+@dataclass
+class Faceit:
+    api_key: str
 
 @dataclass
 class Config:
     tg_bot: TgBot
+    faceit: Faceit
 
 
 def load_config(path: str | None = None) -> Config:
@@ -19,6 +23,9 @@ def load_config(path: str | None = None) -> Config:
     return Config(
         tg_bot=TgBot(
             token=env('BOT_TOKEN'),
-            admin_id=env('ADMIN_ID')
+            admin_id=env('ADMIN_ID'),
+        ),
+        faceit = Faceit(
+            api_key=env('API_KEY')
         )
     )

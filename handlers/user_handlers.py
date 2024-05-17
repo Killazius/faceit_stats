@@ -1,9 +1,13 @@
+import json
+import requests
 from aiogram import Router
-from aiogram.types import Message
 from aiogram.filters import Command, CommandStart
-from lexicon.lexicon import LEXICON
-import requests, json
+from aiogram.types import Message
+
 from config_data.config import Config, load_config
+from lexicon.lexicon import LEXICON
+
+from keyboards.faceit_link import create_link_page
 
 router = Router()
 
@@ -40,6 +44,7 @@ async def stats_command(message: Message):
             PLAYER_STATS_CS2 = response_cs2['games']['cs2']
             PLAYER_LVL = PLAYER_STATS_CS2['skill_level']
             PLAYER_ELO = PLAYER_STATS_CS2['faceit_elo']
+            keyboard = create_link_page(PLAYER_NICKNAME)
 
             stats_url = f'https://open.faceit.com/data/v4/players/{PLAYER_ID}/games/cs2/stats'
             response_stats = requests.get(stats_url, headers=headers)
@@ -55,16 +60,21 @@ async def stats_command(message: Message):
                     hs += int(match['stats']['Headshots %'])
 
             winrate = int(win / matches * 100)
-            kr = round(kr / matches,2)
-            kd = round(kd / matches,2)
+            kr = round(kr / matches, 2)
+            kd = round(kd / matches, 2)
+            hs = int(hs / matches)
 
             if response_cs2['avatar']:
                 await message.answer_photo(photo=response_cs2['avatar'],
                                            caption=LEXICON['/stats'].format(nickname=PLAYER_NICKNAME, level=PLAYER_LVL,
-                                                                            elo=PLAYER_ELO, winrate=winrate, kd=kd, kr=kr,win=win,lose=matches-win))
+                                                                            elo=PLAYER_ELO, winrate=winrate, kd=kd,
+                                                                            kr=kr, win=win, lose=matches - win,hs=hs),
+                                           reply_markup=keyboard)
             else:
-                await message.answer(LEXICON['/stats'].format(nickname=PLAYER_NICKNAME, level=PLAYER_LVL,
-                                                              elo=PLAYER_ELO, winrate=winrate, kd=kd, kr=kr,win=win,lose=matches-win))
+                await message.answer(text = LEXICON['/stats'].format(nickname=PLAYER_NICKNAME, level=PLAYER_LVL,
+                                                              elo=PLAYER_ELO, winrate=winrate, kd=kd, kr=kr, win=win,
+                                                              lose=matches - win,hs=hs),
+                                     reply_markup=keyboard)
         else:
             await message.answer('Такого игрока не существует')
     else:

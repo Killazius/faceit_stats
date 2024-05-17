@@ -32,20 +32,37 @@ async def stats_command(message: Message):
     headers = {
         'Authorization': f'Bearer {API_KEY}'
     }
-    response = requests.get(api_url, headers=headers)
-    if len(PLAYER_NICKNAME) > 1 and response.status_code == 200:
-        response_cs2 = json.loads(response.text)
-
-        formatted_json = json.dumps(response_cs2, indent=4)
-        print(formatted_json)
-
+    response_cs2 = requests.get(api_url, headers=headers)
+    if len(PLAYER_NICKNAME) > 1 and response_cs2.status_code == 200:
+        response_cs2 = json.loads(response_cs2.text)
         PLAYER_ID = response_cs2['player_id']
         PLAYER_STATS_CS2 = response_cs2['games']['cs2']
         PLAYER_LVL = PLAYER_STATS_CS2['skill_level']
         PLAYER_ELO = PLAYER_STATS_CS2['faceit_elo']
-        PLAYER_AVATAR = response_cs2['avatar']
-        await message.answer_photo(photo=PLAYER_AVATAR,
-                                   caption=LEXICON['/stats'].format(nickname=PLAYER_NICKNAME, level=PLAYER_LVL, elo=PLAYER_ELO))
-        #await message.answer(LEXICON['/stats'].format(nickname=PLAYER_NICKNAME, level=PLAYER_LVL, elo=PLAYER_ELO))
+
+        stats_url = f'https://open.faceit.com/data/v4/players/{PLAYER_ID}/games/cs2/stats'
+        response_stats = requests.get(stats_url, headers=headers)
+        response_stats = json.loads(response_stats.text)
+        kr = kd = hs = win = matches = 0
+        for match in response_stats['items']:
+            if match['stats']['Game Mode'] == '5v5':
+                if match['stats']['Result'] == '1':
+                    win += 1
+                matches += 1
+                kr += float(match['stats']['K/R Ratio'])
+                kd += float(match['stats']['K/D Ratio'])
+                hs += int(match['stats']['Headshots %'])
+
+        winrate = int(win / matches * 100)
+        kr = round(kr / matches,2)
+        kd = round(kd / matches,2)
+
+        if response_cs2['avatar']:
+            await message.answer_photo(photo=response_cs2['avatar'],
+                                       caption=LEXICON['/stats'].format(nickname=PLAYER_NICKNAME, level=PLAYER_LVL,
+                                                                        elo=PLAYER_ELO, winrate=winrate, kd=kd, kr=kr,win=win,lose=matches-win))
+        else:
+            await message.answer(LEXICON['/stats'].format(nickname=PLAYER_NICKNAME, level=PLAYER_LVL,
+                                                          elo=PLAYER_ELO, winrate=winrate, kd=kd, kr=kr,win=win,lose=matches-win))
     else:
         await message.answer('Такого игрока не существует')

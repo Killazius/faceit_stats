@@ -9,6 +9,8 @@ from lexicon.lexicon import LEXICON
 
 from keyboards.faceit_link import create_link_page
 
+from user_data.user_func import next_level
+
 router = Router()
 
 
@@ -40,11 +42,13 @@ async def stats_command(message: Message):
         response_cs2 = requests.get(api_url, headers=headers)
         if len(PLAYER_NICKNAME) > 1 and response_cs2.status_code == 200:
             response_cs2 = json.loads(response_cs2.text)
+            print(json.dumps(response_cs2, indent=4))
+            STEAM_ID = response_cs2['steam_id_64']
             PLAYER_ID = response_cs2['player_id']
             PLAYER_STATS_CS2 = response_cs2['games']['cs2']
             PLAYER_LVL = PLAYER_STATS_CS2['skill_level']
             PLAYER_ELO = PLAYER_STATS_CS2['faceit_elo']
-            keyboard = create_link_page(PLAYER_NICKNAME)
+            keyboard = create_link_page(PLAYER_NICKNAME, STEAM_ID)
 
             stats_url = f'https://open.faceit.com/data/v4/players/{PLAYER_ID}/games/cs2/stats'
             response_stats = requests.get(stats_url, headers=headers)
@@ -67,13 +71,13 @@ async def stats_command(message: Message):
             if response_cs2['avatar']:
                 await message.answer_photo(photo=response_cs2['avatar'],
                                            caption=LEXICON['/stats'].format(nickname=PLAYER_NICKNAME, level=PLAYER_LVL,
-                                                                            elo=PLAYER_ELO, winrate=winrate, kd=kd,
-                                                                            kr=kr, win=win, lose=matches - win,hs=hs),
+                                                                            elo=PLAYER_ELO,next_level=next_level(int(PLAYER_LVL),int(PLAYER_ELO)), winrate=winrate, kd=kd,
+                                                                            kr=kr, win=win, lose=matches - win,hs=hs,matches=matches),
                                            reply_markup=keyboard)
             else:
                 await message.answer(text = LEXICON['/stats'].format(nickname=PLAYER_NICKNAME, level=PLAYER_LVL,
-                                                              elo=PLAYER_ELO, winrate=winrate, kd=kd, kr=kr, win=win,
-                                                              lose=matches - win,hs=hs),
+                                                              elo=PLAYER_ELO,next_level=next_level(int(PLAYER_LVL),int(PLAYER_ELO)) ,winrate=winrate, kd=kd, kr=kr, win=win,
+                                                              lose=matches - win,hs=hs,matches=matches),
                                      reply_markup=keyboard)
         else:
             await message.answer('Такого игрока не существует')

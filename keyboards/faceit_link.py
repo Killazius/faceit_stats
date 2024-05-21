@@ -21,3 +21,14 @@ def create_link_page(nickname: str,id:str,faceit_id:str) -> InlineKeyboardMarkup
     kb_builder.adjust(1,2)
 
     return kb_builder.as_markup()
+
+def create_link_lobby(match_url: str) -> InlineKeyboardMarkup:
+    kb_builder = InlineKeyboardBuilder()
+
+    link_lobby = InlineKeyboardButton(
+        text=LEXICON['link_lobby'],
+        url=match_url)
+
+    kb_builder.row(link_lobby, width=1)
+
+    return kb_builder.as_markup()

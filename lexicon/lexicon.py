@@ -3,7 +3,7 @@ LEXICON: dict[str, str] = {
              'либо просто хочешь подкинуть мне идею',
     '/start': 'Привет! Тебя приветствует <i>FACEIT STATS BOT</i>\n'
               'Я бот, который поможет тебе отслеживать твою статистику.\n'
-              '<b>Жду твоих команд!</b>',
+              '<b>/stats &lt;nickname&gt;</b>\n',
     '/info': 'Этот бот создан для того, чтобы отслежить статистику пользователей на <b>FACEIT</b>\n'
              'В данный момент бот имеет лишь 1 функцию, чтобы ее посмотреть введите:\n'
              '<b>/stats nickname</b>\n'
@@ -25,6 +25,10 @@ LEXICON: dict[str, str] = {
 
     'link_steam': 'STEAM',
 
+    'link_lobby': 'LOBBY',
+
+    'avatar_faceit': 'https://corporate.faceit.com/wp-content/uploads/logo-full-preview-2.png',
+
     'last_game': 'Последняя игра',
 
     'last_game_stats': '🌅MAP {map} |\t {result}\n'
@@ -34,7 +38,7 @@ LEXICON: dict[str, str] = {
                        '⭐️MVPs - {mvp}\n\n'
                        'KD - {kd}\n'
                        'KR - {kr}\n'
-                       '💀Headshots - {hs}%'
+                       '💀Headshots - {hs}%\n'
 }
 
 LEXICON_COMMANDS: dict[str, str] = {
@@ -44,14 +48,15 @@ LEXICON_COMMANDS: dict[str, str] = {
 
 }
 
+link_begin = 'https://assets.faceit-cdn.net/third_party/games/ce652bd4-0abb-4c90-9936-1133965ca38b/assets/votables/'
 LEXICON_MAPS_PHOTO: dict[str, str] = {
-    'de_dust2': 'https://assets.faceit-cdn.net/third_party/games/ce652bd4-0abb-4c90-9936-1133965ca38b/assets/votables/7c17caa9-64a6-4496-8a0b-885e0f038d79_1695819126962.jpeg',
-    'de_mirage': 'https://assets.faceit-cdn.net/third_party/games/ce652bd4-0abb-4c90-9936-1133965ca38b/assets/votables/7fb7d725-e44d-4e3c-b557-e1d19b260ab8_1695819144685.jpeg',
-    'de_vertigo': 'https://assets.faceit-cdn.net/third_party/games/ce652bd4-0abb-4c90-9936-1133965ca38b/assets/votables/3bf25224-baee-44c2-bcd4-f1f72d0bbc76_1695819180008.jpeg',
-    'de_nuke': 'https://assets.faceit-cdn.net/third_party/games/ce652bd4-0abb-4c90-9936-1133965ca38b/assets/votables/7197a969-81e4-4fef-8764-55f46c7cec6e_1695819158849.jpeg',
-    'de_inferno': 'https://assets.faceit-cdn.net/third_party/games/ce652bd4-0abb-4c90-9936-1133965ca38b/assets/votables/993380de-bb5b-4aa1-ada9-a0c1741dc475_1695819220797.jpeg',
-    'de_anubis': 'https://assets.faceit-cdn.net/third_party/games/ce652bd4-0abb-4c90-9936-1133965ca38b/assets/votables/31f01daf-e531-43cf-b949-c094ebc9b3ea_1695819235255.jpeg',
-    'de_ancient': 'https://assets.faceit-cdn.net/third_party/games/ce652bd4-0abb-4c90-9936-1133965ca38b/assets/votables/5b844241-5b15-45bf-a304-ad6df63b5ce5_1695819190976.jpeg'
+    'de_dust2': link_begin + '7c17caa9-64a6-4496-8a0b-885e0f038d79_1695819126962.jpeg',
+    'de_mirage': link_begin + '7fb7d725-e44d-4e3c-b557-e1d19b260ab8_1695819144685.jpeg',
+    'de_vertigo': link_begin + '3bf25224-baee-44c2-bcd4-f1f72d0bbc76_1695819180008.jpeg',
+    'de_nuke': link_begin + '7197a969-81e4-4fef-8764-55f46c7cec6e_1695819158849.jpeg',
+    'de_inferno': link_begin + '993380de-bb5b-4aa1-ada9-a0c1741dc475_1695819220797.jpeg',
+    'de_anubis': link_begin + '31f01daf-e531-43cf-b949-c094ebc9b3ea_1695819235255.jpeg',
+    'de_ancient': link_begin + '5b844241-5b15-45bf-a304-ad6df63b5ce5_1695819190976.jpeg'
 
 
 }

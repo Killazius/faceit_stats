@@ -21,6 +21,9 @@ LEXICON: dict[str, str] = {
     'error': 'Произошла ошибка, вы что-то делаете не так.\n'
              'Посмотреть команды бота - /info, написать разработчику /help',
 
+    'win': '🟩WIN',
+    'lose': '🟥LOSE',
+
     'link_page': 'FACEIT',
 
     'link_steam': 'STEAM',
@@ -31,14 +34,14 @@ LEXICON: dict[str, str] = {
 
     'last_game': 'Последняя игра',
 
-    'last_game_stats': '🌅MAP {map} |\t {result}\n'
-                       'Score {score}\n\n'
-                       '🧠<b>{nickname}</b> stats:\n'
+    'last_game_stats': '🌅MAP {Map} |\t {Result}\n'
+                       'Score {Score}\n\n'
+                       '🧠<b>{Nickname}</b> stats:\n'
                        '🏹K/D/A - {kda}\n'
-                       '⭐️MVPs - {mvp}\n\n'
-                       'KD - {kd}\n'
-                       'KR - {kr}\n'
-                       '💀Headshots - {hs}%\n'
+                       '⭐️MVPs - {MVPs}\n\n'
+                       'KD - {K/D Ratio}\n'
+                       'KR - {K/R Ratio}\n'
+                       '💀Headshots - {Headshots %}%\n'
 }
 
 LEXICON_COMMANDS: dict[str, str] = {

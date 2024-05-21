@@ -9,7 +9,7 @@ from lexicon.lexicon import LEXICON, LEXICON_MAPS_PHOTO
 
 from keyboards.faceit_link import create_link_page,create_link_lobby
 
-from services.services import next_level
+from services.services import next_level,get_lastgame_stats,get_player_stats
 from datetime import datetime
 
 
@@ -54,28 +54,13 @@ async def stats_command(message: Message):
         stats_url = f'https://open.faceit.com/data/v4/players/{PLAYER_ID}/games/cs2/stats'
         response_stats = requests.get(stats_url, headers=headers)
         response_stats = json.loads(response_stats.text)
-        kr = kd = hs = win = matches = 0
-        for match in response_stats['items']:
-            if match['stats']['Game Mode'] == '5v5':
-                if match['stats']['Result'] == '1':
-                    win += 1
-                matches += 1
-                kr += float(match['stats']['K/R Ratio'])
-                kd += float(match['stats']['K/D Ratio'])
-                hs += int(match['stats']['Headshots %'])
-
-        winrate = int(win / matches * 100)
-        kr = round(kr / matches, 2)
-        kd = round(kd / matches, 2)
-        hs = int(hs / matches)
+        format_data = get_player_stats(response_stats)
         photo = response_cs2['avatar'] if response_cs2['avatar'] else LEXICON['avatar_faceit']
-        await message.answer_photo(photo=photo,
-                                   caption=LEXICON['/stats'].format(nickname=PLAYER_NICKNAME, level=PLAYER_LVL,
-                                                                    elo=PLAYER_ELO,
-                                                                    next_level=next_level(int(PLAYER_LVL), int(PLAYER_ELO)),
-                                                                    winrate=winrate, kd=kd,
-                                                                    kr=kr, win=win, lose=matches - win, hs=hs, matches=matches),
-                                   reply_markup=keyboard)
+        await message.answer_photo(photo=photo,caption=LEXICON['/stats'].format(nickname=PLAYER_NICKNAME, level=PLAYER_LVL,
+                                                                                elo=PLAYER_ELO,
+                                                                                next_level=next_level(int(PLAYER_LVL), int(PLAYER_ELO)),
+                                                                                **format_data), reply_markup=keyboard)
+
     else:
         await message.answer('Такого игрока не существует')
 
@@ -87,15 +72,7 @@ async def last_game_button(callback: CallbackQuery):
     response_stats = requests.get(stats_url, headers=headers)
     response_stats = json.loads(response_stats.text)
     last_game = response_stats['items'][0]['stats']
-    map = last_game['Map']
-    result = '🟩WIN' if last_game['Result'] == '1' else '🟥LOSE'
-    score = last_game['Score']
-    nickname = last_game['Nickname']
-    kda = last_game['Kills'] + '/' + last_game['Deaths'] + '/' + last_game['Assists']
-    mvp = last_game['MVPs']
-    kd = last_game['K/D Ratio']
-    kr = last_game['K/R Ratio']
-    hs = last_game['Headshots %']
+    format_data = get_lastgame_stats(last_game)
 
     match_id = last_game['Match Id']
     url = f'https://open.faceit.com/data/v4/matches/{match_id}'
@@ -103,9 +80,7 @@ async def last_game_button(callback: CallbackQuery):
     response_url = json.loads(responce_url.text)
     match_url = response_url['faceit_url'].format(lang='ru')
     keyboard = create_link_lobby(match_url)
-    caption = LEXICON['last_game_stats'].format(map=map, result=result, score=score,
-                                      nickname=nickname, kda=kda, mvp=mvp,
-                                      kd=kd, kr=kr, hs=hs)
+    caption = LEXICON['last_game_stats'].format(**format_data)
     await callback.message.answer_photo(photo=LEXICON_MAPS_PHOTO[last_game["Map"]],
                                         caption=caption,reply_markup=keyboard)
     await callback.answer()

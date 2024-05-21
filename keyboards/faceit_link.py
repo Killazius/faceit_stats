@@ -3,7 +3,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from lexicon.lexicon import LEXICON
 
 
-def create_link_page(nickname: str,id:str) -> InlineKeyboardMarkup:
+def create_link_page(nickname: str,id:str,faceit_id:str) -> InlineKeyboardMarkup:
     kb_builder = InlineKeyboardBuilder()
 
     link_page = InlineKeyboardButton(
@@ -13,6 +13,11 @@ def create_link_page(nickname: str,id:str) -> InlineKeyboardMarkup:
         text=LEXICON['link_steam'],
         url=f'https://steamcommunity.com/profiles/{id}'
     )
-    kb_builder.row(link_page,link_steam, width=2)
+    last_game = InlineKeyboardButton(
+        text=LEXICON['last_game'],
+        callback_data= faceit_id
+    )
+    kb_builder.row(last_game,link_page,link_steam, width=1)
+    kb_builder.adjust(1,2)
 
     return kb_builder.as_markup()

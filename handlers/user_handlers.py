@@ -47,22 +47,23 @@ async def stats_command(message: Message):
         STEAM_ID = response_cs2['steam_id_64']
         PLAYER_ID = response_cs2['player_id']
         PLAYER_STATS_CS2 = response_cs2['games']['cs2']
-        PLAYER_LVL = PLAYER_STATS_CS2['skill_level']
-        PLAYER_ELO = PLAYER_STATS_CS2['faceit_elo']
         keyboard = create_link_page(PLAYER_NICKNAME, STEAM_ID,PLAYER_ID)
 
         stats_url = f'https://open.faceit.com/data/v4/players/{PLAYER_ID}/games/cs2/stats'
         response_stats = requests.get(stats_url, headers=headers)
         response_stats = json.loads(response_stats.text)
         format_data = get_player_stats(response_stats)
-        photo = response_cs2['avatar'] if response_cs2['avatar'] else LEXICON['avatar_faceit']
-        await message.answer_photo(photo=photo,caption=LEXICON['/stats'].format(nickname=PLAYER_NICKNAME, level=PLAYER_LVL,
-                                                                                elo=PLAYER_ELO,
-                                                                                next_level=next_level(int(PLAYER_LVL), int(PLAYER_ELO)),
-                                                                                **format_data), reply_markup=keyboard)
-
+        format_data['nickname'] = PLAYER_NICKNAME
+        format_data['level'] = PLAYER_STATS_CS2['skill_level']
+        format_data['elo'] = PLAYER_STATS_CS2['faceit_elo']
+        format_data['next_level'] = next_level(int(format_data['level']), int(format_data['elo']))
+        if format_data['matches'] != 0:
+            photo = response_cs2['avatar'] if response_cs2['avatar'] else LEXICON['avatar_faceit']
+            await message.answer_photo(photo=photo, caption=LEXICON['/stats'].format(**format_data), reply_markup=keyboard)
+        else:
+            await message.answer(LEXICON['error_no_matches'])
     else:
-        await message.answer('Такого игрока не существует')
+        await message.answer(LEXICON['no_user'])
 
 
 @router.callback_query()
@@ -71,6 +72,7 @@ async def last_game_button(callback: CallbackQuery):
     stats_url = f'https://open.faceit.com/data/v4/players/{player_id}/games/cs2/stats'
     response_stats = requests.get(stats_url, headers=headers)
     response_stats = json.loads(response_stats.text)
+
     last_game = response_stats['items'][0]['stats']
     format_data = get_lastgame_stats(last_game)
 
@@ -79,8 +81,10 @@ async def last_game_button(callback: CallbackQuery):
     responce_url = requests.get(url,headers=headers)
     response_url = json.loads(responce_url.text)
     match_url = response_url['faceit_url'].format(lang='ru')
+
     keyboard = create_link_lobby(match_url)
     caption = LEXICON['last_game_stats'].format(**format_data)
+
     await callback.message.answer_photo(photo=LEXICON_MAPS_PHOTO[last_game["Map"]],
                                         caption=caption,reply_markup=keyboard)
     await callback.answer()

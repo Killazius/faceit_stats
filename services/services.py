@@ -31,12 +31,12 @@ def get_player_stats(response_stats) -> dict[str:str]:
             stats['kr'] += float(match['K/R Ratio'])
             stats['kd'] += float(match['K/D Ratio'])
             stats['hs'] += int(match['Headshots %'])
-
-    stats['winrate'] = int(stats['win'] / stats['matches'] * 100)
-    stats['kr'] = round(stats['kr'] / stats['matches'], 2)
-    stats['kd'] = round(stats['kd'] / stats['matches'], 2)
-    stats['hs'] = int(stats['hs'] / stats['matches'])
-    stats['lose'] = stats['matches'] - stats['win']
+    if stats['matches'] != 0:
+        stats['winrate'] = int(stats['win'] / stats['matches'] * 100)
+        stats['kr'] = round(stats['kr'] / stats['matches'], 2)
+        stats['kd'] = round(stats['kd'] / stats['matches'], 2)
+        stats['hs'] = int(stats['hs'] / stats['matches'])
+        stats['lose'] = stats['matches'] - stats['win']
     return stats
 
 def get_lastgame_stats(last_game) -> dict[str:str]:

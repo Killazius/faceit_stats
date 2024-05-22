@@ -10,6 +10,7 @@ class TgBot:
 @dataclass
 class Faceit:
     api_key: str
+    headers: dict[str:str]
 
 @dataclass
 class Config:
@@ -20,12 +21,16 @@ class Config:
 def load_config(path: str | None = None) -> Config:
     env = Env()
     env.read_env(path)
+    api_key = env('API_KEY')
     return Config(
         tg_bot=TgBot(
             token=env('BOT_TOKEN'),
             admin_id=env('ADMIN_ID'),
         ),
         faceit = Faceit(
-            api_key=env('API_KEY')
+            api_key=api_key,
+            headers={
+                'Authorization': f'Bearer {api_key}'
+            }
         )
     )

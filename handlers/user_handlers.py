@@ -71,10 +71,10 @@ async def stats_command(message: Message):
 
 
 @router.message(Command(commands='top'))
-async def stats_command(message: Message):
+async def top_command(message: Message):
     keyboard = top_keyboard(LEXICON_REGIONS)
     await message.answer(LEXICON[message.text],reply_markup=keyboard)
-
+    await message.delete()
     # url = f'https://open.faceit.com/data/v4/rankings/games/cs2/regions/{region}'
     # res = requests.get(url,headers=headers)
     # print(json.dumps(json.loads(res.text),indent=4))

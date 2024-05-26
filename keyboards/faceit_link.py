@@ -3,7 +3,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from lexicon.lexicon import LEXICON
 
 
-def create_link_page(nickname: str,id:str,faceit_id:str) -> InlineKeyboardMarkup:
+def create_link_page(nickname: str, id: str, faceit_id: str) -> InlineKeyboardMarkup:
     kb_builder = InlineKeyboardBuilder()
 
     link_page = InlineKeyboardButton(

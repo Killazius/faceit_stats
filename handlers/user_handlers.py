@@ -1,13 +1,13 @@
 import json
 import requests
-from aiogram import Router
+from aiogram import Router,F
 from aiogram.filters import Command, CommandStart
 from aiogram.types import Message, CallbackQuery
 
 from config_data.config import Config, load_config
-from lexicon.lexicon import LEXICON, LEXICON_MAPS_PHOTO
+from lexicon.lexicon import LEXICON, LEXICON_MAPS_PHOTO,LEXICON_REGIONS
 
-from keyboards.faceit_link import create_link_page, create_link_lobby
+from keyboards.faceit_link import create_link_page, create_link_lobby, top_keyboard
 
 from services.services import next_level, get_lastgame_stats, get_player_stats
 
@@ -41,12 +41,15 @@ async def stats_command(message: Message):
     api_url = f'https://open.faceit.com/data/v4/players?nickname={PLAYER_NICKNAME}'
     response = requests.get(api_url, headers=headers)
     response_cs2 = json.loads(response.text)
+
+    # rank_url = f'https://open.faceit.com/data/v4/rankings/games/cs2/regions/EU'
+    # res = requests.get(rank_url,headers=headers)
+    # print(json.dumps(json.loads(res.text),indent=4))
     if response.status_code == 200 and 'cs2' in response_cs2['games']:
         STEAM_ID = response_cs2['steam_id_64']
         PLAYER_ID = response_cs2['player_id']
         PLAYER_STATS_CS2 = response_cs2['games']['cs2']
         keyboard = create_link_page(PLAYER_NICKNAME, STEAM_ID, PLAYER_ID)
-
         stats_url = f'https://open.faceit.com/data/v4/players/{PLAYER_ID}/games/cs2/stats'
         response_stats = requests.get(stats_url, headers=headers)
         response_stats = json.loads(response_stats.text)
@@ -55,6 +58,7 @@ async def stats_command(message: Message):
         format_data['level'] = PLAYER_STATS_CS2['skill_level']
         format_data['elo'] = PLAYER_STATS_CS2['faceit_elo']
         format_data['next_level'] = next_level(int(format_data['level']), int(format_data['elo']))
+
         if format_data['matches'] != 0:
             photo = response_cs2['avatar'] if response_cs2['avatar'] else LEXICON['avatar_faceit']
             await message.answer_photo(photo=photo, caption=LEXICON['/stats'].format(**format_data),
@@ -63,6 +67,38 @@ async def stats_command(message: Message):
             await message.answer(LEXICON['error_no_matches'])
     else:
         await message.answer(LEXICON['no_user'])
+
+
+
+@router.message(Command(commands='top'))
+async def stats_command(message: Message):
+    keyboard = top_keyboard(LEXICON_REGIONS)
+    await message.answer(LEXICON[message.text],reply_markup=keyboard)
+
+    # url = f'https://open.faceit.com/data/v4/rankings/games/cs2/regions/{region}'
+    # res = requests.get(url,headers=headers)
+    # print(json.dumps(json.loads(res.text),indent=4))
+@router.callback_query(F.data.in_(LEXICON_REGIONS.keys()))
+async def region_top_stats(callback: CallbackQuery):
+    region = callback.data
+    params = {
+        "offset": 0,
+        "limit": 10
+    }
+    url = f'https://open.faceit.com/data/v4/rankings/games/cs2/regions/{region}'
+    response = requests.get(url,headers=headers,params=params)
+    top_data = json.loads(response.text)['items']
+    players_top = []
+    for player in top_data:
+        pos = player['position']
+        nickname = player['nickname']
+        faceit_elo = player['faceit_elo']
+        link = f'https://www.faceit.com/ru/players/{nickname}/stats/cs2'
+        player_profile_link = f'<a href="{link}">{nickname}</a>'
+        players_top.append(f'{pos} - {player_profile_link} | elo - {faceit_elo}')
+    message_text = '\n'.join(players_top)
+    await callback.message.answer(message_text,disable_web_page_preview=True)
+    await callback.answer()
 
 
 @router.callback_query()

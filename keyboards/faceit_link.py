@@ -32,3 +32,16 @@ def create_link_lobby(match_url: str) -> InlineKeyboardMarkup:
     kb_builder.row(link_lobby, width=1)
 
     return kb_builder.as_markup()
+
+def top_keyboard(regions: dict[str:str]) -> InlineKeyboardMarkup:
+    kb_builder = InlineKeyboardBuilder()
+    buttons: list[InlineKeyboardButton] = []
+
+    for button, text in regions.items():
+        buttons.append(InlineKeyboardButton(
+            text=text,
+            callback_data=button))
+    kb_builder.row(*buttons)
+    kb_builder.adjust(1, 1,3)
+
+    return kb_builder.as_markup()

@@ -19,7 +19,7 @@ def get_player_stats(response_stats) -> dict[str:str]:
         'kd': 0,
         'hs': 0,
         'win': 0,
-        'matches': 0,
+        'matches': len(response_stats['items']),
         'lose': 0
     }
     for match_info in response_stats['items']:
@@ -27,7 +27,6 @@ def get_player_stats(response_stats) -> dict[str:str]:
         if match['Game Mode'] == '5v5':
             if match['Result'] == '1':
                 stats['win'] += 1
-            stats['matches'] += 1
             stats['kr'] += float(match['K/R Ratio'])
             stats['kd'] += float(match['K/D Ratio'])
             stats['hs'] += int(match['Headshots %'])

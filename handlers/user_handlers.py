@@ -11,7 +11,14 @@ from keyboards.faceit_link import create_link_page, create_link_lobby, top_keybo
 
 from services.services import next_level, get_lastgame_stats, get_player_stats
 
-from filters.filters import IsStats
+
+import os
+from database.database import BotDB
+
+
+database_path = os.path.join(os.path.dirname(__file__), '..', 'database', 'faceit_stats.db')
+db = BotDB(database_path)
+
 
 
 router = Router()
@@ -36,9 +43,35 @@ async def process_info_command(message: Message):
     await message.answer(LEXICON[message.text])
 
 
-@router.message(Command(commands='stats'), IsStats())
+@router.message(Command(commands='save'))
+async def save_command(message: Message):
+    command_args = message.text.split(' ')
+
+    if len(command_args) != 2:
+        await message.answer(LEXICON['2_args_error'])
+        return
+
+    nickname = command_args[1]
+
+    db.add_user(message.from_user.id, nickname)
+    text = LEXICON['new_save'].format(nickname=nickname)
+    await message.answer(text)
+
+
+@router.message(Command(commands='stats'))
 async def stats_command(message: Message):
-    PLAYER_NICKNAME = message.text.split(' ')[-1]
+    command_args = message.text.split(' ')
+
+    if len(command_args) > 2:
+        await message.answer(LEXICON['2_args_error'])
+        return
+    elif len(command_args) == 1:
+        PLAYER_NICKNAME = db.find_nickname_by_telegram_id(message.from_user.id)
+        if not PLAYER_NICKNAME:
+            await message.answer(LEXICON['no_save'])
+            return
+    else:
+        PLAYER_NICKNAME = message.text.split(' ')[-1]
     api_url = f'https://open.faceit.com/data/v4/players?nickname={PLAYER_NICKNAME}'
     response = requests.get(api_url, headers=headers)
     response_cs2 = json.loads(response.text)
@@ -65,6 +98,8 @@ async def stats_command(message: Message):
             await message.answer(LEXICON['error_no_matches'])
     else:
         await message.answer(LEXICON['no_user'])
+
+
 
 
 

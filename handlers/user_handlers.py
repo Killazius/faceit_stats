@@ -13,6 +13,7 @@ from services.services import next_level, get_lastgame_stats, get_player_stats
 
 from filters.filters import IsStats
 
+
 router = Router()
 
 config: Config = load_config()
@@ -42,9 +43,6 @@ async def stats_command(message: Message):
     response = requests.get(api_url, headers=headers)
     response_cs2 = json.loads(response.text)
 
-    # rank_url = f'https://open.faceit.com/data/v4/rankings/games/cs2/regions/EU'
-    # res = requests.get(rank_url,headers=headers)
-    # print(json.dumps(json.loads(res.text),indent=4))
     if response.status_code == 200 and 'cs2' in response_cs2['games']:
         STEAM_ID = response_cs2['steam_id_64']
         PLAYER_ID = response_cs2['player_id']

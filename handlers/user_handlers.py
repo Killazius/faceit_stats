@@ -30,17 +30,17 @@ headers = config.faceit.headers
 
 @router.message(CommandStart())
 async def process_start_command(message: Message):
-    await message.answer(LEXICON[message.text])
+    await message.answer(LEXICON[message.text.split('@')[0]])
 
 
 @router.message(Command(commands='help'))
 async def process_help_command(message: Message):
-    await message.answer(LEXICON[message.text])
+    await message.answer(LEXICON[message.text.split('@')[0]])
 
 
 @router.message(Command(commands='info'))
 async def process_info_command(message: Message):
-    await message.answer(LEXICON[message.text])
+    await message.answer(LEXICON[message.text.split('@')[0]])
 
 
 @router.message(Command(commands='save'))
@@ -106,7 +106,7 @@ async def stats_command(message: Message):
 @router.message(Command(commands='top'))
 async def top_command(message: Message):
     keyboard = top_keyboard(LEXICON_REGIONS)
-    await message.answer(LEXICON[message.text],
+    await message.answer(LEXICON[message.text.split('@')[0]],
                          reply_markup=keyboard)
     await message.delete()
 
